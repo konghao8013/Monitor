@@ -26,9 +26,12 @@ namespace Transcribe
         {
             InitializeComponent();
             Loaded += MainWindow_Loaded;
+
             _Tool = new Operate();
             _Tool.Init();
 
+
+           
 
         }
 
@@ -40,7 +43,9 @@ namespace Transcribe
             Top = SystemParameters.FullPrimaryScreenHeight - 25;
             ResizeMode = ResizeMode.NoResize;
             Collapsed(true);
-          //  this.Hide();
+
+            this.Hide();
+            //this.Opacity = 0;
         }
 
         private void BtnStart_Click(object sender, RoutedEventArgs e)

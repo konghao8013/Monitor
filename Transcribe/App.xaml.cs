@@ -13,6 +13,9 @@ namespace Transcribe
     /// </summary>
     public partial class App : Application
     {
+        
+        Operate _Tool;
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -23,7 +26,7 @@ namespace Transcribe
             }
             if (!Operate.IsAdministrator && !isRedegit)
             {
-                Operate.RestartApplicationAsAdministrator();
+                 Operate.RestartApplicationAsAdministrator();
             }
         }
     }
