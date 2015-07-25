@@ -20,9 +20,9 @@ namespace Monitor
                 {
                     if (path == null)
                     {
-                        path = AppDomain.CurrentDomain.BaseDirectory + "LogImages\\" + DateTime.Now.ToString("yyyyMMddhhmmss")+".png";
+                        path = AppDomain.CurrentDomain.BaseDirectory + "LogImages\\" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".jpg";
                     }
-                    path = CheckPath(path,false);
+                    path = CheckPath(path, false);
                     img.Save(path);
                     WriteLine("文件保存至 " + path);
                 });
@@ -34,31 +34,14 @@ namespace Monitor
                 WriteLine(e.Message);
             }
         }
-        //连续不换行写入
-        public static void Write(string msg, string path = null, bool isErrorWrite = false)
-        {
-            path = CheckPath(path);
-            try
-            {
-                using (StreamWriter sw = new StreamWriter(path, true))
-                {
-                    sw.Write(msg);
-                    sw.Close();
-                    sw.Dispose();
-                }
-            }
-            catch (Exception e)
-            {
-                ErrorWrite(msg, path, isErrorWrite, e);
-            }
-        }
+
 
         private static string ErrorWrite(string msg, string path, bool IsErrorWrite, Exception e)
         {
             if (IsErrorWrite == false)
             {
                 path = path + Guid.NewGuid().ToString("N") + ".txt";
-                Write(msg + "\r\n" + e.Message, path, true);
+                WriteLine(msg + "\r\n" + e.Message, path, true);
             }
             return path;
         }
@@ -69,18 +52,21 @@ namespace Monitor
             {
                 using (StreamWriter sw = new StreamWriter(path, true))
                 {
-                    sw.WriteLine();
-                    sw.WriteLine(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
-                    sw.WriteLine(msg);
-                    sw.WriteLine();
-                    sw.WriteLine();
+                    LogMsg log = new LogMsg();
+                    log.CreateTime = DateTime.Now;
+                    log.Msg = msg;
+                    sw.WriteLine(log.Json());
+
                     sw.Close();
                     sw.Dispose();
                 }
             }
             catch (Exception e)
             {
-                ErrorWrite(msg, path, isErrorWrite, e);
+                if (!isErrorWrite)
+                {
+                    WriteLine(msg, path+""+Guid.NewGuid().ToString("N"), true);
+                }
             }
         }
 
@@ -105,11 +91,32 @@ namespace Monitor
                 }
                 if (IsCreateFile)
                 {
-                    File.Create(path);
+                    FileStream file = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                    file.Close();
+                    file.Dispose();
+                 
+                    
                 }
 
             }
             return path;
         }
     }
+    [Serializable]
+    public class LogMsg
+    {
+        public string CreateTimeString
+        {
+            get
+            {
+                return CreateTime.ToString("yyyy/MM/dd:hh:ss");
+            }
+        }
+
+        public string Msg { set; get; }
+        public DateTime CreateTime { set; get; }
+
+
+    }
+
 }

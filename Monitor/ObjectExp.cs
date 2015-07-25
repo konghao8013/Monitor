@@ -2,11 +2,32 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Web.Script.Serialization;
 
 namespace Monitor
 {
     public static class ObjectExp
     {
+        static JavaScriptSerializer _JavaScriptSerializer;
+        /// <summary>
+        /// JSON序列化
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static string Json<T>(this T obj)
+        {
+            InitJavaScriptSerializer();
+            return _JavaScriptSerializer.Serialize(obj);
+        }
+
+        private static void InitJavaScriptSerializer()
+        {
+            if (_JavaScriptSerializer == null)
+            {
+                _JavaScriptSerializer = new JavaScriptSerializer();
+            }
+        }
         /// <summary>
         /// 字符串拼接
         /// </summary>

@@ -178,8 +178,9 @@ namespace Monitor
                 hMouseHook = SetWindowsHookEx(
                     WH_MOUSE_LL,
                     MouseHookProcedure,
-                    Marshal.GetHINSTANCE(
-                        Assembly.GetExecutingAssembly().GetModules()[0]),
+                    IntPtr.Zero,
+                    /*Marshal.GetHINSTANCE(
+                        Assembly.GetExecutingAssembly().GetModules()[0])*/
                     0);
                 if (hMouseHook == 0)
                 {
@@ -194,8 +195,10 @@ namespace Monitor
                 hKeyboardHook = SetWindowsHookEx(
                     WH_KEYBOARD_LL,
                     KeyboardHookProcedure,
+                    IntPtr.Zero,
+                    /*
                     Marshal.GetHINSTANCE(
-                    Assembly.GetExecutingAssembly().GetModules()[0]),
+                    Assembly.GetExecutingAssembly().GetModules()[0]),*/
                     0);
                 if (hKeyboardHook == 0)
                 {
