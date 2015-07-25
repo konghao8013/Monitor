@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using SHDocVw;
 using Microsoft.Win32;
 using System.IO;
 using System.Threading;
@@ -19,6 +18,14 @@ namespace Monitor
     {
         UserActivityHook _hook;
         /// <summary>
+        /// 与当前传入信息匹配的保存图片
+        /// </summary>
+        public string[] ValidsSave { set; get; }
+        /// <summary>
+        /// 当前匹配的所有数据集
+        /// </summary>
+        public string[] AllValids { set; get; }
+        /// <summary>
         /// 是否保存图片
         /// </summary>
         bool isSaveImg;
@@ -31,8 +38,27 @@ namespace Monitor
             }
             get
             {
-
-                return isSaveImg;
+                var IsAny = false;
+                if (AllValids != null && ValidsSave != null)
+                {
+                    foreach (var item in ValidsSave)
+                    {
+                        if (AllValids.Any(a => a.ToLower().IndexOf(item.ToLower()) > -1))
+                        {
+                            IsAny = true;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    IsAny = true;
+                }
+                if (ValidsSave != null && ValidsSave.Join("").Length == 0)
+                {
+                    IsAny = true;
+                }
+                return isSaveImg && IsAny;
             }
         }
 
@@ -52,6 +78,7 @@ namespace Monitor
             Log.WriteLine("Monitor.Init");
             try
             {
+
                 _hook = new UserActivityHook();
                 new Thread(() =>
                 {
@@ -63,8 +90,10 @@ namespace Monitor
                 _hook.OnMouseLeftClick += _hook_OnMouseLeftClick;
                 _hook.OnMouseRight += _hook_OnMouseRight;
                 _hook.OnMouseRightClick += _hook_OnMouseRightClick;
-
                 RegisterRegedit();
+
+
+
             }
             catch (Exception e)
             {
@@ -143,7 +172,7 @@ namespace Monitor
 
             const String KEY = "KH";
             var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
-            var appPath = APPPath+" -regedit";
+            var appPath = APPPath + " -regedit";
             var autoRun = key.GetValue(KEY);
             if (autoRun == null || !autoRun.Equals(appPath))
             {

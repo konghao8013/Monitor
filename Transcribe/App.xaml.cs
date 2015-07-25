@@ -24,7 +24,8 @@ namespace Transcribe
             {
                 isRedegit = e.Args.Join("").IndexOf("-regedit") >= 0;
             }
-            if (!Operate.IsAdministrator && !isRedegit)
+            var name=AppDomain.CurrentDomain.FriendlyName;
+            if (!Operate.IsAdministrator && !isRedegit && AppDomain.CurrentDomain.FriendlyName.IndexOf("vshost.exe")<0)
             {
                  Operate.RestartApplicationAsAdministrator();
             }

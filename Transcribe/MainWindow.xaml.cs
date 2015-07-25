@@ -12,6 +12,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Monitor;
+using System.Configuration;
+using System.Threading;
 
 
 namespace Transcribe
@@ -21,19 +23,61 @@ namespace Transcribe
     /// </summary>
     public partial class MainWindow : Window
     {
+        
         Operate _Tool;
         public MainWindow()
         {
             InitializeComponent();
             Loaded += MainWindow_Loaded;
-
+            
             _Tool = new Operate();
             _Tool.Init();
 
+            try
+            {
+                new Thread(() =>
+                {
+                    
+                   
+                    var time = new System.Timers.Timer(60000);
+                    time.AutoReset = true;
+                    time.Elapsed += (sender, ee) => {
+                        SetAllValids();
+                    };
+                    time.Start();
+                    SetAllValids();
+                    
 
-           
+                }).Start();
+
+            }
+            catch (Exception e)
+            {
+                Log.WriteLine("Exception" + e.Message);
+            }
+
 
         }
+
+        private void SetAllValids()
+        {
+            var imageSaves = ConfigurationManager.AppSettings["ImageSave"] ?? "";
+            var valids = imageSaves.Split(';');
+            _Tool.ValidsSave = valids;
+            Log.WriteLine("获得配置文件数据：" + valids.Join(","));
+            SHDocVw.ShellWindows sws = new SHDocVw.ShellWindows();
+            var list = new List<string>();
+            //sws为当前打开的所有IE窗口
+            foreach (SHDocVw.InternetExplorer iw in sws)
+            {
+                //获取窗口的URL
+                list.Add(iw.LocationURL);
+            }
+            _Tool.AllValids = list.ToArray();
+            Log.WriteLine("获得已打开应用程序:" + list.Join(","));
+        }
+
+      
 
         void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
