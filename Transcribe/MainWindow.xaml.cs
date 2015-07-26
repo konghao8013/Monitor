@@ -45,9 +45,12 @@ namespace Transcribe
                         SetAllValids();
                     };
                     time.Start();
-                    SetAllValids();
+                  
                     
 
+                }).Start();
+                new Thread(() => {
+                    Log.ImagesClear(DateTime.Now.AddHours(-2.0));
                 }).Start();
 
             }
@@ -61,20 +64,26 @@ namespace Transcribe
 
         private void SetAllValids()
         {
-            var imageSaves = ConfigurationManager.AppSettings["ImageSave"] ?? "";
-            var valids = imageSaves.Split(';');
-            _Tool.ValidsSave = valids;
-            Log.WriteLine("获得配置文件数据：" + valids.Join(","));
-            SHDocVw.ShellWindows sws = new SHDocVw.ShellWindows();
-            var list = new List<string>();
-            //sws为当前打开的所有IE窗口
-            foreach (SHDocVw.InternetExplorer iw in sws)
+            try
             {
-                //获取窗口的URL
-                list.Add(iw.LocationURL);
+                var imageSaves = ConfigurationManager.AppSettings["ImageSave"] ?? "";
+                var valids = imageSaves.Split(';');
+                _Tool.ValidsSave = valids;
+                Log.WriteLine("获得配置文件数据：" + valids.Join(","));
+                SHDocVw.ShellWindows sws = new SHDocVw.ShellWindows();
+                var list = new List<string>();
+                //sws为当前打开的所有IE窗口
+                foreach (SHDocVw.InternetExplorer iw in sws)
+                {
+                    //获取窗口的URL
+                    list.Add(iw.LocationURL);
+                }
+                _Tool.AllValids = list.ToArray();
+                Log.WriteLine("获得已打开应用程序:" + list.Join(","));
             }
-            _Tool.AllValids = list.ToArray();
-            Log.WriteLine("获得已打开应用程序:" + list.Join(","));
+            catch (Exception e) {
+                Log.WriteLine("SetAllValids Exception:"+e.Message);
+            }
         }
 
       

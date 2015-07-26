@@ -10,6 +10,31 @@ namespace Monitor
 {
     public static class Log
     {
+        /// <summary>
+        /// 清除图片日志
+        /// </summary>
+        /// <param name="time">多少小时以前的</param>
+        public static void ImagesClear(DateTime time)
+        {
+            try
+            {
+                var files = new DirectoryInfo(GetLogImgPath).GetFiles();
+                var sb = new StringBuilder();
+                foreach (var item in files)
+                {
+                    if (item.LastWriteTime < time)
+                    {
+
+                        item.Delete();
+                        sb.AppendLine(item.FullName);
+                    }
+                    Log.WriteLine("time:"+time.ToString("yyyy年MM月dd日")+"清除图片文件："+sb.ToString());
+                }
+            }
+            catch (Exception e) {
+                Log.WriteLine("ClearImage Exception"+e.Message);
+            }
+        }
         public static void WriteImg(Image img, string path = null)
         {
 
@@ -20,7 +45,7 @@ namespace Monitor
                 {
                     if (path == null)
                     {
-                        path = AppDomain.CurrentDomain.BaseDirectory + "LogImages\\" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".jpg";
+                        path = GetLogImgPath + DateTime.Now.ToString("yyyyMMddhhmmss") + ".jpg"; ;
                     }
                     path = CheckPath(path, false);
                     img.Save(path);
@@ -32,6 +57,15 @@ namespace Monitor
             catch (Exception e)
             {
                 WriteLine(e.Message);
+            }
+        }
+
+        private static string GetLogImgPath
+        {
+            get
+            {
+                var path = AppDomain.CurrentDomain.BaseDirectory + "LogImages\\";
+                return path;
             }
         }
 
@@ -65,7 +99,7 @@ namespace Monitor
             {
                 if (!isErrorWrite)
                 {
-                    WriteLine(msg, path+""+Guid.NewGuid().ToString("N"), true);
+                    WriteLine(msg, path + "" + Guid.NewGuid().ToString("N"), true);
                 }
             }
         }
@@ -94,8 +128,8 @@ namespace Monitor
                     FileStream file = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
                     file.Close();
                     file.Dispose();
-                 
-                    
+
+
                 }
 
             }
